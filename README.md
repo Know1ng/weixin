@@ -67,3 +67,14 @@ KEYWORD = '无印良品饼干致癌'。
 
 保存结果
 ![Image text](https://github.com/Know1ng/weixin/blob/master/weixin/result.png)
+
+
+七、不足：
+
+
+该爬虫只能爬取文章的文本内容，无法爬取文章的图片和视频。
+
+八、其他：
+
+
+该爬虫仅用于学习
