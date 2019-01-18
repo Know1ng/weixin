@@ -20,7 +20,7 @@ def get_proxy():
 def delete_proxy(proxy):
     requests.get('http://127.0.0.1:5010/delete/?proxy={}'.format(proxy))
 
-# 获取索引页面的html
+# 获取索引页面
 def get_index_page(page, keyword):
     try:
         print('正在爬取%d页' % page)
@@ -33,12 +33,12 @@ def get_index_page(page, keyword):
             'Upgrade-Insecure-Requests': '1'
         }
         data = {
-            'type': '2', # 文章，1为公众号
+            'type': '2', # 2为文章，1为公众号
             'query': keyword,
             'ie': 'utf8',
             'page': page
         }
-        response = requests.get(url=url, headers=headers1, params=data, proxies=proxies, allow_redirects=False,timeout=5)
+        response = requests.get(url=url, headers=headers1, params=data, proxies=proxies, allow_redirects=False,timeout=5)   # allow_redirects=False，禁止重定向
         if response.status_code == 200:
             return response.text
         if response.status_code == 302:  # 状态码302为重定向，跳转至输入验证码的页面
@@ -70,7 +70,7 @@ def get_content(link):
             'Upgrade-Insecure-Requests': '1',
         }
         response = requests.get(url=link, headers=headers2, proxies=proxies,timeout=3)
-        time.sleep(1)   # 延时3s保险
+        time.sleep(3)   # 延时3s
         html = etree.HTML(response.text)
         # 标题
         title = html.xpath('//div[@id="img-content"]/h2[@class="rich_media_title"]/text()')[0].strip()
@@ -87,13 +87,13 @@ def get_content(link):
         pprint(article)
         save_to_mongoDB(article=article)
     except IndexError :
-        print('文章索引错误，错误连接为：', link)  # 索引出现错误多半是因为文章为转载。
-    except  requests.exceptions.ConnectionError:    # HTTPConnectionPool错误为代理ip有问题，重试即可
+        print('文章索引错误，错误连接为：', link)  # 索引出现错误多半是因为文章为转载，无文本内容。
+    except  requests.exceptions.ConnectionError:    # HTTPConnectionPool错误为代理ip有问题，重试即可。
         print('获取文章出现异常,重试,删除无效代理', proxy)
         delete_proxy(proxy=proxy)    # 删除无效代理
         return  get_content(link)
     except requests.exceptions.ReadTimeout:
-        print('获取文章请求超时，重试')
+        print('获取文章超时，重试')
         return  get_content(link)
     except Exception as e:
         print('出现其他异常',e)
